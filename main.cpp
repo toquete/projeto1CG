@@ -57,29 +57,75 @@ void Init()
   /* glLoadIdentity(); */
   gluOrtho2D(0 , 640 , 0 , 480);
 }
-int main(int argc, char **argv)
+int DDA()
 {
-  printf("Enter two end points of the line to be drawn:\n");
-  printf("\n************************************");
-  printf("\nEnter Point1( X1 , Y1):\n");
-  scanf("%lf%lf",&X1,&Y1);
-  printf("\n************************************");
-  printf("\nEnter Point1( X2 , Y2):\n");
-  scanf("%lf%lf",&X2,&Y2);
+
+  printf("Entre com os dois pontos da reta:\n");
+  printf("\nPonto 1: \n");
+  printf("\nX1:  ");
+  scanf("%lf",&X1);
+  printf("\nY1:  ");
+  scanf("%lf",&Y1);
+
+  printf("\nPonto 2: \n");
+  printf("\nX2: ");
+  scanf("%lf",&X2);
+  printf("\nY2: ");
+  scanf("%lf",&Y2);
 
   /* Initialise GLUT library */
-  glutInit(&argc,argv);
+  //glutInit(&argc,argv);
   /* Set the initial display mode */
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
   /* Set the initial window position and size */
   glutInitWindowPosition(0,0);
   glutInitWindowSize(640,480);
   /* Create the window with title "DDA_Line" */
-  glutCreateWindow("DDA_Line");
+  glutCreateWindow("Reta Gerada Pelo Algoritmo DDA");
   /* Initialize drawing colors */
   Init();
   /* Call the displaying function */
   glutDisplayFunc(LineDDA);
   /* Keep displaying untill the program is closed */
   glutMainLoop();
+}
+
+void validaOpcao(int op){
+
+    switch (op){
+        case 1:
+            DDA();
+            break;
+
+        case 0:
+            break;
+    }
+}
+
+int menu(){
+
+    int opcao;
+
+    printf("-----------------------------------------------------\n");
+    printf("                       MENU                          \n");
+    printf("-----------------------------------------------------\n");
+    printf("1 - DDA\n");
+    printf("0 - Sair");
+
+    printf("\nEscolha a opcao: \n");
+    scanf("%d",&opcao);
+}
+
+int main(int argc, char **argv)
+{
+    int op;
+
+    glutInit(&argc,argv);
+
+    do{
+        op = menu();
+        validaOpcao(op);
+    }while(op != 0);
+
+    return 0;
 }
