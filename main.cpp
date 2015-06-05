@@ -12,10 +12,10 @@
 #define LINHA_DDA 1
 #define LINHA_BRES 2
 #define CIRC_BRES 3
-#define REPEAT 1000
+#define REPEAT 100000000
 
 int X1, Y1, X2, Y2, raio;
-time_t inicio, fim;
+clock_t tempo;
 
 float arredonda(float valor)
 {
@@ -99,10 +99,11 @@ void dda()
   inicializaOpenGL();
   glutCreateWindow("Reta Gerada Pelo Algoritmo DDA"); //Cria a janela com o nome indicado por parâmetro
   inicializaCores();
-  inicio = time(NULL);
+  tempo = clock();
   for(int i = 0; i < REPEAT; i++)
     glutDisplayFunc(linhaDDA);//chamada do algoritmo
-  fim = time(NULL);
+  tempo = clock() - tempo;
+  printf("O tempo de execucao do algoritmo foi de %fs\n", ((float)tempo)/CLOCKS_PER_SEC);
   glutMainLoop();//mantém a linha sendo mostrada enquanto o programa estiver rodando
 }
 
@@ -193,7 +194,11 @@ void bresenhamLinha()
   inicializaOpenGL();
   glutCreateWindow("Reta Gerada Pelo Algoritmo Bresenham"); //Cria a janela com o nome indicado por parâmetro
   inicializaCores();
-  glutDisplayFunc(linhaBresenham);//chamada do algoritmo
+  tempo = clock();
+  for(int i = 0; i < REPEAT; i++)
+    glutDisplayFunc(linhaBresenham);//chamada do algoritmo
+  tempo = clock() - tempo;
+  printf("O tempo de execucao do algoritmo foi de %fs\n", ((float)tempo)/CLOCKS_PER_SEC);
   glutMainLoop();//mantém a linha sendo mostrada enquanto o programa estiver rodando
 }
 
@@ -203,7 +208,11 @@ void bresenhamCirc()
   inicializaOpenGL();
   glutCreateWindow("Circunferência Gerada pelo Algoritmo Bresenham");
   inicializaCores();
-  glutDisplayFunc(circBresenham);
+  tempo = clock();
+  for(int i = 0; i < REPEAT; i++)
+    glutDisplayFunc(circBresenham);
+  tempo = clock() - tempo;
+  printf("O tempo de execucao do algoritmo foi de %fs\n", ((float)tempo)/CLOCKS_PER_SEC);
   glutMainLoop();
 }
 
@@ -249,7 +258,6 @@ int main(int argc, char **argv)
   do{
     op = menu();
     validaOpcao(op);
-    printf("O tempo de execução do algoritmo foi de %fs\n", difftime(fim, inicio));
   }while(op != 0);
 
   return 0;
