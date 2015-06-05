@@ -1,223 +1,256 @@
-        #ifdef __APPLE__
-        #include <GLUT/glut.h>
-        #else
-        #include <GL/glut.h>
-        #endif
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
-        #include <stdlib.h>
-        #include <stdio.h>
-        #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
 
-        double X1, Y1, X2, Y2;
+#define LINHA_DDA 1
+#define LINHA_BRES 2
+#define CIRC_BRES 3
+#define REPEAT 1000
 
-        float round_value(float v)
-        {
-          return floor(v + 0.5);
-        }
+int X1, Y1, X2, Y2, raio;
+time_t inicio, fim;
 
-        void LineDDA()
-        {
-          double dx=(X2-X1);
-          double dy=(Y2-Y1);
-          double steps;
-          float xInc,yInc,x=X1,y=Y1;
-          /* Find out whether to increment x or y */
-          steps=(abs(dx)>abs(dy))?(abs(dx)):(abs(dy));
-          xInc=dx/(float)steps;
-          yInc=dy/(float)steps;
+float arredonda(float valor)
+{
+  return floor(valor + 0.5);
+}
 
-          /* Clears buffers to preset values */
-          glClear(GL_COLOR_BUFFER_BIT);
+void definePontosReta()
+{
+  printf("Entre com os dois pontos da reta:\n");
+  printf("\nPonto 1: \n");
+  printf("\nX1:  ");
+  scanf("%d", &X1);
+  printf("\nY1:  ");
+  scanf("%d", &Y1);
 
-          /* Plot the points */
-          glBegin(GL_POINTS);
-          /* Plot the first point */
-          glVertex2d(x,y);
-          int k;
-          /* For every step, find an intermediate vertex */
-          for(k=0;k<steps;k++)
-          {
-            x+=xInc;
-            y+=yInc;
-            /* printf("%0.6lf %0.6lf\n",floor(x), floor(y)); */
-            glVertex2d(round_value(x), round_value(y));
-          }
-          glEnd();
+  printf("\nPonto 2: \n");
+  printf("\nX2: ");
+  scanf("%d", &X2);
+  printf("\nY2: ");
+  scanf("%d", &Y2);
+}
 
-          glFlush();
-        }
-        void Init()
-        {
-          /* Set clear color to white */
-          glClearColor(1.0,1.0,1.0,0);
-          /* Set fill color to black */
-          glColor3f(0.0,0.0,0.0);
-          /* glViewport(0 , 0 , 640 , 480); */
-          //glMatrixMode(GL_PROJECTION);
-          /* glLoadIdentity(); */
-          gluOrtho2D(0 , 640 , 0 , 480);
-        }
-        int DDA()
-        {
+void definePontosCirc()
+{
+  printf("Entre com as coordenadas do centro o tamanho do raio da circunferência:\n");
+  printf("\nX:  ");
+  scanf("%d", &X1);
+  printf("\nY:  ");
+  scanf("%d", &Y1);
+  printf("\nRaio:  ");
+  scanf("%d", &raio);
+}
 
-          printf("Entre com os dois pontos da reta:\n");
-          printf("\nPonto 1: \n");
-          printf("\nX1:  ");
-          scanf("%lf",&X1);
-          printf("\nY1:  ");
-          scanf("%lf",&Y1);
+void linhaDDA()
+{
+  int dx, dy, iter, k;
+  float x_inc, y_inc, x, y;
 
-          printf("\nPonto 2: \n");
-          printf("\nX2: ");
-          scanf("%lf",&X2);
-          printf("\nY2: ");
-          scanf("%lf",&Y2);
+  dx = X2 - X1;
+  dy = Y2 - Y1;
+  if (abs(dx) > abs(dy))
+    iter = abs(dx);
+  else
+    iter = abs(dy);
+  x_inc = dx/iter;
+  y_inc = dy/iter;
+  x = X1;
+  y = Y1;
 
-          /* Initialise GLUT library */
-          //glutInit(&argc,argv);
-          /* Set the initial display mode */
-          glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-          /* Set the initial window position and size */
-          glutInitWindowPosition(0,0);
-          glutInitWindowSize(640,480);
-          /* Create the window with title "DDA_Line" */
-          glutCreateWindow("Reta Gerada Pelo Algoritmo DDA");
-          /* Initialize drawing colors */
-          Init();
-          /* Call the displaying function */
-          glutDisplayFunc(LineDDA);
-          /* Keep displaying untill the program is closed */
-          glutMainLoop();
-        }
+  glClear(GL_COLOR_BUFFER_BIT);
+  glBegin(GL_POINTS);
+  glVertex2i(arredonda(x), arredonda(y));
+  for(k = 0; k < iter; k++)
+  {
+    x += x_inc;
+    y += y_inc;
+    glVertex2i(arredonda(x), arredonda(y));
+  }
+  glEnd();
+  glFlush();
+}
 
-    //void setPixel(GLint xCoordinate, GLint yCoordinate)
-    void setPixel(double xCoordinate, double yCoordinate)
+void inicializaCores()
+{
+  glClearColor(1.0,1.0,1.0,0);// define a cor de fundo da janela (no caso, branco)
+  glColor3f(1.0,0.0,0.0);// define cor do traço (no caso, vermelho)
+  glPointSize(4.0);// define espessura do traço
+  gluOrtho2D(0 , 640 , 0 , 480);
+}
+
+void inicializaOpenGL()
+{
+  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); //Define o modo inicial de apresentação
+  glutInitWindowPosition(0,0); // Define a posição inicial da tela a ser apresentada
+  glutInitWindowSize(640,480); // Define o tamanho da tela a ser apresentada
+}
+
+void dda()
+{
+  definePontosReta();
+  inicializaOpenGL();
+  glutCreateWindow("Reta Gerada Pelo Algoritmo DDA"); //Cria a janela com o nome indicado por parâmetro
+  inicializaCores();
+  inicio = time(NULL);
+  for(int i = 0; i < REPEAT; i++)
+    glutDisplayFunc(linhaDDA);//chamada do algoritmo
+  fim = time(NULL);
+  glutMainLoop();//mantém a linha sendo mostrada enquanto o programa estiver rodando
+}
+
+void linhaBresenham()
+{
+  int dx, dy, d, const1, const2, x, y, xFinal;
+
+  dx = abs(X2 - X1);
+  dy = abs(Y2 - Y1);
+  d = 2 * dy - dx;
+  const1 = 2 * dy;
+  const2 = 2 * (dy - dx);
+
+  if (X1 > X2)
+  {
+    x = X2;
+    y = Y2;
+    xFinal = X1;
+  }
+  else
+  {
+    x = X1;
+    y = Y2;
+    xFinal = X2;
+  }
+
+  glClear(GL_COLOR_BUFFER_BIT);
+  glBegin(GL_POINTS);
+  glVertex2i(x, y);
+  while(x < xFinal)
+  {
+    x++;
+    if(d < 0)
+      d += const1;
+    else
     {
-     glBegin(GL_POINTS);
-     glVertex2i(xCoordinate,yCoordinate);
-     glEnd();
-     glFlush(); //executes all OpenGL functions as quickly as possible
+      y++;
+      d += const2;
     }
-    //Bresenham line-drawing procedure for |m| < 1.0
-    //void lineBres(GLint x0, GLint y0, GLint xEnd, GLint yEnd)
-    void lineBres(double x0, double y0, double xEnd, double yEnd)
+   glVertex2i(x, y);
+  }
+  glEnd();
+  glFlush();
+}
+
+void desenhaPontosCirc(int x, int y)
+{
+  glVertex2i(X1 + x, Y1 + y);
+  glVertex2i(X1 + y, Y1 + x);
+  glVertex2i(X1 + y, Y1 - x);
+  glVertex2i(X1 + x, Y1 - y);
+  glVertex2i(X1 - x, Y1 - y);
+  glVertex2i(X1 - y, Y1 - x);
+  glVertex2i(X1 - y, Y1 + x);
+  glVertex2i(X1 - x, Y1 + y);
+}
+
+void circBresenham()
+{
+  int x, y, d;
+
+  x = 0;
+  y = raio;
+  d = 1 - raio;
+
+  glClear(GL_COLOR_BUFFER_BIT);
+  glBegin(GL_POINTS);
+  desenhaPontosCirc(x, y);
+  while(x < y)
+  {
+    if (d < 0)
+      d = d + 2 * x + 3;
+    else
     {
-     /*GLint dx = fabs(xEnd - x0);
-     GLint dy = fabs(yEnd - y0);
-     GLint p = 2 * dy - dx;
-     GLint twoDy = 2 * dy;
-     GLint twoDyMinusDx = 2 * (dy-dx);
-     GLint x,y;*/
-     double dx = fabs(xEnd - x0);
-     double dy = fabs(yEnd - y0);
-     double p = 2 * dy - dx;
-     double twoDy = 2 * dy;
-     double twoDyMinusDx = 2 * (dy-dx);
-     double x,y;
-     // determine which endpoint to use as start position
-     if (x0 > xEnd){
-     x = xEnd;
-     y = yEnd;
-     xEnd = x;
-     }else{
-     x = x0;
-     y = y0;
+      d = d + 2 * (x - y) + 5;
+      y--;
     }
-     setPixel(x,y);
-     while(x<xEnd){
-     x++;
-     if(p<0)
-     p += twoDy;
-     else{
-     y++;
-     p += twoDyMinusDx;
-     }
-     setPixel(x,y);
-     }
-    }
+    x++;
+    desenhaPontosCirc(x, y);
+  }
+  glEnd();
+  glFlush();
+}
 
-    void drawMyLine()
-    {
-     GLint x0 = X1;
-     GLint y0 = Y1;
-     GLint xEnd = X2;
-     GLint yEnd = Y2;
-     glClear(GL_COLOR_BUFFER_BIT);
-     glColor3f(1.0,0.0,0.0);
-     glPointSize(4.0);
-     lineBres(x0,y0,xEnd,yEnd);
-     //lineBres(X1,Y1,X2,Y2);
-    }
+void bresenhamLinha()
+{
+  definePontosReta();
+  inicializaOpenGL();
+  glutCreateWindow("Reta Gerada Pelo Algoritmo Bresenham"); //Cria a janela com o nome indicado por parâmetro
+  inicializaCores();
+  glutDisplayFunc(linhaBresenham);//chamada do algoritmo
+  glutMainLoop();//mantém a linha sendo mostrada enquanto o programa estiver rodando
+}
 
-    void BresenhamLine()
-    {
-     printf("Entre com os dois pontos da reta:\n");
-     printf("\nPonto 1: \n");
-     printf("\nX1:  ");
-     scanf("%lf",&X1);
-     printf("\nY1:  ");
-     scanf("%lf",&Y1);
+void bresenhamCirc()
+{
+  definePontosCirc();
+  inicializaOpenGL();
+  glutCreateWindow("Circunferência Gerada pelo Algoritmo Bresenham");
+  inicializaCores();
+  glutDisplayFunc(circBresenham);
+  glutMainLoop();
+}
 
-     printf("\nPonto 2: \n");
-     printf("\nX2: ");
-     scanf("%lf",&X2);
-     printf("\nY2: ");
-     scanf("%lf",&Y2);
+void validaOpcao(int op)
+{
+  switch (op){
+    case LINHA_DDA:
+      dda();
+      break;
+    case LINHA_BRES:
+      bresenhamLinha();
+      break;
+    case CIRC_BRES:
+      bresenhamCirc();
+      break;
+    case 0:
+      break;
+  }
+}
 
-     //initialize display mode
-     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-     //set display-window width & height
-     glutInitWindowSize(400,400);
-     //set display-window upper-left position
-     glutInitWindowPosition(0,0);
-     //create display-window with a title
-     glutCreateWindow("Reta Gerada pelo Algoritmo Bresenham ");
-     Init();
-     glutDisplayFunc(drawMyLine);
-     glutMainLoop();
-    }
+int menu()
+{
+  int opcao;
 
-    void validaOpcao(int op){
+  printf("-----------------------------------------------------\n");
+  printf("                       MENU                          \n");
+  printf("-----------------------------------------------------\n");
+  printf("1 - DDA\n");
+  printf("2 - Bresenham para Retas\n");
+  printf("3 - Bresenham para Circunferencias\n");
+  printf("0 - Sair");
 
-        switch (op){
-            case 1:
-                DDA();
-                break;
-            case 2:
-                BresenhamLine();
-                break;
+  printf("\nEscolha a opcao: \n");
+  scanf("%d",&opcao);
+  return opcao;
+}
 
-            case 0:
-                break;
-        }
-    }
+int main(int argc, char **argv)
+{
+  int op;
 
-    int menu(){
+  glutInit(&argc,argv);
+  do{
+    op = menu();
+    validaOpcao(op);
+    printf("O tempo de execução do algoritmo foi de %fs\n", difftime(fim, inicio));
+  }while(op != 0);
 
-            int opcao;
-
-            printf("-----------------------------------------------------\n");
-            printf("                       MENU                          \n");
-            printf("-----------------------------------------------------\n");
-            printf("1 - DDA\n");
-            printf("2 - Bresenham para Retas\n");
-            printf("0 - Sair");
-
-            printf("\nEscolha a opcao: \n");
-            scanf("%d",&opcao);
-            return opcao;
-        }
-
-        int main(int argc, char **argv)
-        {
-            int op;
-
-            glutInit(&argc,argv);
-
-            do{
-                op = menu();
-                validaOpcao(op);
-            }while(op != 0);
-
-            return 0;
-        }
+  return 0;
+}
