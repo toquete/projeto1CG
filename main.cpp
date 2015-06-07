@@ -40,7 +40,7 @@ void definePontosReta()
 
 void definePontosCirc()
 {
-  printf("Entre com as coordenadas do centro o tamanho do raio da circunferência:\n");
+  printf("Entre com as coordenadas do centro e o tamanho do raio da circunferência:\n");
   printf("\nX:  ");
   scanf("%d", &X1);
   printf("\nY:  ");
